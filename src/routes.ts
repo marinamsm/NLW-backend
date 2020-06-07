@@ -23,7 +23,7 @@ routes.post("/points",
             email: Joi.string().required().email(),
             city: Joi.string().required(),
             uf: Joi.string().required().max(2),
-            whatsapp: Joi.number().required(),
+            whatsapp: Joi.string().required(),
             latitude: Joi.number().required(),
             longitude: Joi.number().required(),
             items: Joi.string().required()
