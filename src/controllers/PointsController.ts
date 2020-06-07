@@ -58,10 +58,14 @@ class PointsCtrl {
         .where('point_items.item_id', id);
 
         const IPAddress = '192.168.0.10';
-        const serializedPoint = {
-          ...point,
-          image: `http://${IPAddress}:3333/uploads/${point.image}`,
-        };;
+        let serializedPoint = point;
+
+        if (!point.image.includes('http')) {
+          serializedPoint = {
+            ...point,
+            image: `http://${IPAddress}:3333/uploads/${point.image}`,
+          };
+        }
 
         response.json({ point: serializedPoint, items });
     };
@@ -83,6 +87,7 @@ class PointsCtrl {
 
         const serializedPoints = points.map((point) => {
           const IPAddress = '192.168.0.10';
+          if (point.image.includes('http')) return point;
           return {
             ...point,
             image: `http://${IPAddress}:3333/uploads/${point.image}`,
