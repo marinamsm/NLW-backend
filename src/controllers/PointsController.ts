@@ -17,7 +17,7 @@ class PointsCtrl {
           try {
             const trx = await knex.transaction();
             const point = {
-                image: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
+                image: request.file.filename,
                 name,
                 email,
                 whatsapp,
@@ -28,7 +28,9 @@ class PointsCtrl {
               };
             const insertedIds = await trx("points").insert(point);
             const point_id = insertedIds[0];
-            const pointItems = items.map((item_id: number) => {
+            const pointItems = items.split(',')
+            .map((item: string) => Number(item.trim()))
+            .map((item_id: number) => {
               return {
                 item_id,
                 point_id,
@@ -54,7 +56,14 @@ class PointsCtrl {
         const items = await knex('items')
         .join('point_items', 'items.id', '=', 'point_items.item_id')
         .where('point_items.item_id', id);
-        response.json({ point, items });
+
+        const IPAddress = '192.168.0.10';
+        const serializedPoint = {
+          ...point,
+          image: `http://${IPAddress}:3333/uploads/${point.image}`,
+        };;
+
+        response.json({ point: serializedPoint, items });
     };
     
     async index(request: Request, response: Response) {
@@ -72,7 +81,15 @@ class PointsCtrl {
         .distinct()
         .select('points.*');
 
-        response.json(points);
+        const serializedPoints = points.map((point) => {
+          const IPAddress = '192.168.0.10';
+          return {
+            ...point,
+            image: `http://${IPAddress}:3333/uploads/${point.image}`,
+          };
+        });
+
+        response.json(serializedPoints);
     }
 }
 
