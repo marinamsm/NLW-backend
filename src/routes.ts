@@ -1,4 +1,5 @@
 import express, { request } from "express";
+import { celebrate, Joi } from 'celebrate';
 import multer from 'multer';
 import multerConfig from './config/multer';
 import PointsCtrl from './controllers/PointsController';
@@ -12,8 +13,24 @@ const upload = multer(multerConfig);
 
 routes.get("/items", itemCtrl.index);
 
-routes.post("/points", upload.single('image'), pointCtrl.create);
 routes.get("/points", pointCtrl.index);
 routes.get("/points/:id", pointCtrl.show);
+routes.post("/points", 
+    upload.single('image'),
+    celebrate({
+        body: Joi.object().keys({
+            name: Joi.string().required(),
+            email: Joi.string().required().email(),
+            city: Joi.string().required(),
+            uf: Joi.string().required().max(2),
+            whatsapp: Joi.number().required(),
+            latitude: Joi.number().required(),
+            longitude: Joi.number().required(),
+            items: Joi.string().required()
+        })
+    }, {
+        abortEarly: false
+    }),
+    pointCtrl.create);
 
 export default routes;
